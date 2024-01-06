@@ -1,10 +1,12 @@
 Powershell Concepts:
+
 How to check Powershell version: $PSversionTable
+=============================================================
 Powershell cmdlet structure
 1-Verb= Verb is the action (Get, Set, New, etc)
 2-Noun=Its is the resource (Service, Process, etc)
 3-Prefix=used to group (AD, SP, Azure AD)
-
+=============================================================
 Module: A module is a package that contains Powershell command such as cmdlets, providers, functions, workflows,variables and aliases. People who recieve modules can add the commands in the modules to their powershell sessions and use them just like the built-in commands.
 ====================================================================
 Get - to get something
