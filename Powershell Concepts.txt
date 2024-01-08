@@ -14,6 +14,12 @@ This also allows Powershell to execute .NET functions directly from its shell. M
 
 This also means that running cmdlets allows you to perform actions on the output object (which makes it convenient to pass output from one cmdlet to another). The normal format of a cmdlet is represented using Verb-Noun; for example, the cmdlet to list commands is called Get-Command
 
+The main thing to remember here is that Get-Command and Get-Help are your best friends! 
+
+Get-Help displays information about a cmdlet. To get help with a particular command, run the following:
+
+Get-Help Command-Name
+
 Common verbs to use include:
 
     Get
@@ -24,6 +30,38 @@ Common verbs to use include:
     New
     Out
 
+cmdlets = Verb-Noun
+
+Get-Command,gets all the cmdlets installed on the current Computer. The great thing about this cmdlet is that it allows for pattern matching like the following:
+
+Get-Command Verb-* or Get-Command *-Noun
+=============================================================
+Get-Help Get-Command -Examples
+=============================================================
+Get-Command (This will you a a list of all commands available in that system)
+=============================================================
+Get Command | Select-Object -Property Name (This command will show the property name of all commands)
+=============================================================
+Suppose we want to show cmdlets whose source is NetSecurity:
+
+Get-Command | where-Object -Property Source -eq NetSecurity (istead of -eq(equal to) we can use "-contains" or "-GT")
+=============================================================
+To check the services we use below command:
+
+Get-Service
+==============================================================
+If we want to seen only running services so we use below command:
+
+Get-Service | Where-Object -Property Status -eq running
+==============================================================
+To see the list of directories:
+
+Get-ChildItem
+===============================================================
+
+
+
+====================================================================================
 
 
 
