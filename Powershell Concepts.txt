@@ -179,6 +179,16 @@ This kind of script execution method can be useful but also poses security risks
 
 Bypassing Execution Policy for Script Execution:
 
+ Execution policies can have seven different values:
+
+AllSigned: Scripts can run but require all scripts to be signed by a trusted publisher.
+Bypass: All scripts can run, and no warnings or prompts will be displayed.
+Default: This refers to “restricted” for Windows clients and “RemoteSigned” for Windows servers.
+RemoteSigned: Scripts can run, and this does not require local scripts to be digitally signed.
+Restricted: The default configuration for Windows clients. Allows individual commands to run, does not allow scripts.
+Undefined: This shows that no specific execution policy was set. This means default execution policies will be enforced.
+Unrestricted: Most scripts will run. 
+
 Set-ExecutionPolicy Bypass -Scope Process -Force; .\script.ps1
 
 Temporarily bypasses the script execution policy to run a PowerShell script, allowing execution of unsigned scripts.
