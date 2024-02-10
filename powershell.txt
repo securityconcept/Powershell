@@ -1,0 +1,96 @@
+1-Get-Help
+
+2-Get-help *process
+
+3-Get-Alias
+
+4-Get-Command
+
+5-Get-Command -CommndType cmdlet  --gives output of all cmdlet available in this system
+
+6-Get-Command -CommandType cmdlet -Name *Services*
+
+7-Get-Command -CommandType cmdlet -Name *Process*
+
+8-Get-Command -CommandType cmdlet | measure-Object  =====how many cmdlets installed in machine
+
+9-Get-Process | more   list of running processes
+
+10-Get-Services
+
+11-Get-Command -Verb stop  ====list of all comlet which contains verb stop
+
+12-start-process notepad.exe  ====from this command you can start any process
+
+13-Stop-Process -Name notepad or stop-process -Id 13600
+
+14-In PowerShell, a cmdlet (pronounced "command-let") is a lightweight command that performs a specific function. Cmdlets are the basic building blocks of PowerShell scripts and commands, and they follow a specific naming convention: they consist of a verb and a noun, separated by a hyphen. The combination of verb and noun is intended to make cmdlet names descriptive and easy to understand.
+
+15- Get-NetTCPConnection
+
+16-Test-NetConnection
+
+Performs network connectivity tests, including checking port availability and testing remote network connectivity.
+
+17-Invoke-WebRequest -Uri <URL>
+
+Sends HTTP and HTTPS requests to web servers, making it useful for web-related tasks such as web scraping or testing web applications.
+
+18-Get-childItem (working as ls)
+
+19-Get-ChildItem | Format-Table *  (show ouput of above command in details)
+
+=================================================================================
+
+Output format:
+
+Get-Command -CommandType Cmdlet -Name Format*
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Cmdlet          Format-Custom                                      3.1.0.0    Microsoft.PowerShell.Utility
+Cmdlet          Format-List                                        3.1.0.0    Microsoft.PowerShell.Utility
+Cmdlet          Format-SecureBootUEFI                              2.0.0.0    SecureBoot
+Cmdlet          Format-Table                                       3.1.0.0    Microsoft.PowerShell.Utility
+Cmdlet          Format-Wide                                        3.1.0.0    Microsoft.PowerShell.Utility
+
+===================================================================================
+
+20- Get-Process | Out-File -FilePath C:\log\process.txt
+
+Append output of Get-Process in a process.txt file.
+
+21-Get-Content C:\log\process.txt
+
+to read the content of file process.txt
+
+===================================================================================
+
+Operators in Powershell:
+
+22-Arithmatic(+,-,*,/,%) , Assignment (=,+=,-=,*=,/=,%=) , Comparision (-eq, -ne, -gt, -lt, -le,-ge,-match,-notmatch,-replace,-like,-notlike,-in,-notin,-contains,-notcontains) , Redirection (>,>>,2>,2>,2>&1)
+
+-eq=equal,-ne=not equal,-gt=grater than, -le=less than equal
+=============================================================================
+
+Advance operator:
+
+Logical (-and, -or, -xor, -not, !)
+
+For Eg:  (1 -ge 0) -and (2 -le 3) == value is true because 1 is greater than equal to 0 and 2 is less than equal to 3
+
+split and Join (-split, -join)
+
+ "welcome to my channel" -split " "      ====we have split the sentence based on space delimeter
+ 
+ welcome
+to
+my
+channel
+
+Type Operator (-is, -isnot, -as)
+
+============================================================================
+
+
+
